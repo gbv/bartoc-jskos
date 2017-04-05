@@ -1,0 +1,47 @@
+{
+  "authors": [
+    {
+      "email": "voss@gbv.de",
+      "name": "Jakob Voss"
+    }
+  ],
+  "autoload": {
+    "psr-4": {
+      "": "src"
+    }
+  },
+  "description": "JSKOS wrapper to Basel Register of Thesauri, Ontologies & Classifications (BARTOC)",
+  "keywords": [
+    "BARTOC",
+    "JSKOS"
+  ],
+  "license": "LGPL",
+  "name": "gbv/bartoc-jskos",
+  "repositories": [
+    {
+      "type": "vcs",
+      "url": "https://github.com/pear/Text_LanguageDetect"
+    }
+  ],
+  "require": {
+    "gbv/jskos-rdf": "0.1.1",
+    "pear/Text_LanguageDetect": "dev-master",
+    "php": ">=7.0"
+  },
+  "require-dev": {
+    "phpunit/phpunit": ">=6.0.0"
+  },
+  "scripts": {
+    "debug": [
+      "vendor/bin/phpunit tests --debug"
+    ],
+    "test": [
+      "vendor/bin/phpunit tests --verbose"
+    ],
+    "travis-test": [
+      "vendor/bin/phpunit tests --debug --coverage-clover clover.xml"
+    ]
+  },
+  "type": "library",
+  "version": "0.1.0"
+}

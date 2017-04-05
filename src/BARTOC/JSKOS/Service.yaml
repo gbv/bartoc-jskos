@@ -1,0 +1,84 @@
+---
+_ns:
+    rdf:    http://www.w3.org/1999/02/22-rdf-syntax-ns#
+    schema: http://schema.org/
+    dct:    http://purl.org/dc/terms/
+    foaf:   http://xmlns.com/foaf/0.1/
+    nkos:   http://w3id.org/nkos#
+    skos:   http://www.w3.org/2004/02/skos/core#
+
+_uriSpace:
+    Concept:
+        uriSpace: http://bartoc.org/en/node/
+        notationPattern: /^[0-9]+$/
+
+# JSKOS object fields
+
+type:
+    type: URI
+    properties:
+        - dc:type
+
+# JSKOS Item fields
+
+url:
+    type: URI
+    unique: true
+    properties:
+        - foaf:page
+
+identifier:
+    type: URI
+    jskos: plain
+    properties:
+        - dc:relation
+
+subject:
+    type: URI
+    jskos: Concept
+    properties:
+        - dct:subject
+
+creator:
+    type: URI
+    jskos: Concept
+    properties:
+        - foaf:maker
+
+extent:
+    type: plain
+    unique: true
+    properties:
+        - nkos:sizeNote
+
+scopeNote:
+    type: literal
+    _defaultLanguage: en
+    properties:
+        - skos:scopeNote
+
+# only relevant for registries
+
+prefLabel:
+    type: literal
+    unique: true
+    properties:
+        - dc:title
+
+# JSKOS Concept fields
+
+startDate:
+    type: plain
+    unique: true
+    pattern: /^\d\d\d\d$/
+    properties:
+        - dct:created
+        - schema:startDate
+
+endDate:
+    type: plain
+    unique: true
+    pattern: /^\d\d\d\d$/
+    properties:
+        - schema:endDate
+
