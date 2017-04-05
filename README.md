@@ -34,7 +34,7 @@ Jakob Voß <jakob.voss@gbv.de>
 
 JSKOS-BARTOC is licensed under the LGPL license (see `LICENSE` for details).
 
-[![Latest Stable Version](https://poser.pugx.org/gbv/jskos-bartoc/v/stable)](https://packagist.org/packages/gbv/jskos-bartoc)
-[![License](https://poser.pugx.org/gbv/jskos/license)](https://packagist.org/packages/gbv/jskos-bartoc)
-[![Build Status](https://img.shields.io/travis/gbv/jskos-bartoc.svg)](https://travis-ci.org/gbv/jskos-bartoc)
-[![Coverage Status](https://coveralls.io/repos/gbv/jskos-bartoc/badge.svg?branch=master)](https://coveralls.io/r/gbv/jskos-bartoc)
+[![Latest Stable Version](https://poser.pugx.org/gbv/bartoc-jskos/v/stable)](https://packagist.org/packages/gbv/bartoc-jskos)
+[![License](https://poser.pugx.org/gbv/jskos/license)](https://packagist.org/packages/gbv/bartoc-jskos)
+[![Build Status](https://img.shields.io/travis/gbv/bartoc-jskos.svg)](https://travis-ci.org/gbv/bartoc-jskos)
+[![Coverage Status](https://coveralls.io/repos/gbv/bartoc-jskos/badge.svg?branch=master)](https://coveralls.io/r/gbv/bartoc-jskos)
