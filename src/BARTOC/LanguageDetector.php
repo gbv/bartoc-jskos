@@ -8,8 +8,10 @@ trait LanguageDetector
 {
 	private $ld;
 
-    public function detectLanguage(string $text, array $languages)
+    public function detectLanguage(string $text, $languages=null)
     {
+        if (!count($languages)) return 'und';
+
         if (!$this->ld) {
             $this->ld = new Text_LanguageDetect();
             $this->ld->setNameMode(2);

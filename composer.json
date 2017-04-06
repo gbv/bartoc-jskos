@@ -17,15 +17,9 @@
   ],
   "license": "LGPL",
   "name": "gbv/bartoc-jskos",
-  "repositories": [
-    {
-      "type": "vcs",
-      "url": "https://github.com/pear/Text_LanguageDetect"
-    }
-  ],
   "require": {
     "gbv/jskos-rdf": "0.1.1",
-    "pear/Text_LanguageDetect": "dev-master",
+    "pear/text_languagedetect": "1.0.x",
     "php": ">=7.0"
   },
   "require-dev": {
@@ -43,5 +37,5 @@
     ]
   },
   "type": "library",
-  "version": "0.1.0"
+  "version": "0.1.1"
 }

@@ -16,5 +16,8 @@ class ServiceTest extends \PHPUnit\Framework\TestCase
 
         $lang = $service->detectLanguage($text, ['it','zh']);
         $this->assertEquals('und', $lang);
+
+        $lang = $service->detectLanguage($text, null);
+        $this->assertEquals('und', $lang);
     }
 }
