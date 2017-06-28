@@ -39,6 +39,11 @@ $jskos = $service->query(["notation" => "447"]);
 
 See [jskos-php-examples](https://github.com/gbv/jskos-php-examples/) for an example how to use the wrapper as part of a larger PHP application.
 
+This repository also contains a command line script to query BARTOC in JSKOS format:
+
+    php examples/bartoc2jskos.php http://bartoc.org/en/node/18600
+    php examples/bartoc2jskos.php 18600
+
 # Contributung
 
 Bugs and feature request are [tracked on GitHub](https://github.com/gbv/bartoc-jskos/issues).
