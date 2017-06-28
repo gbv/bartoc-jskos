@@ -2,10 +2,13 @@
 
 namespace BARTOC\JSKOS;
 
-use JSKOS\Concept;
+use JSKOS\ConceptScheme;
+use Helmich\JsonAssert\JsonAssertions;
 
 class ServiceTest extends \PHPUnit\Framework\TestCase
 {
+    use JsonAssertions;
+
     public function testLanguageDetector()
     {
         $service = new Service();
@@ -19,5 +22,17 @@ class ServiceTest extends \PHPUnit\Framework\TestCase
 
         $lang = $service->detectLanguage($text, null);
         $this->assertEquals('und', $lang);
+    }
+
+    public function testExamples()
+    {
+        $service = new Service();
+
+        $jskos = $service->queryURI("http://bartoc.org/en/node/18600");
+
+        $expect = json_decode(file_get_contents('tests/18600.json'), true);
+        $expect = new ConceptScheme($expect);
+        
+        $this->assertEquals("$jskos", "$expect");
     }
 }

@@ -18,12 +18,14 @@
   "license": "LGPL",
   "name": "gbv/bartoc-jskos",
   "require": {
-    "gbv/jskos-rdf": "0.1.1",
+    "gbv/jskos": ">=0.1.5",
+    "gbv/jskos-rdf": ">=0.1.2",
     "pear/text_languagedetect": "1.0.x",
     "php": ">=7.0"
   },
   "require-dev": {
-    "phpunit/phpunit": ">=6.0.0"
+    "phpunit/phpunit": ">=6.0.0",
+    "helmich/phpunit-json-assert": ">=2.0.0"
   },
   "scripts": {
     "debug": [

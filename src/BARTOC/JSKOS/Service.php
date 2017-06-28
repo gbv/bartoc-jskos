@@ -24,11 +24,10 @@ class Service extends \JSKOS\RDF\RDFMappingService {
     private $languages = [];
     private $licenses  = [];
     private $kostypes  = [];
-    private $topics    = [];
  
     public function __construct() {
         parent::__construct();
-        foreach (['languages','licenses','kostypes','topics'] as $name) {
+        foreach (['languages','licenses','kostypes'] as $name) {
             $rows = array_map('str_getcsv', file(__DIR__."/$name.csv"));
             $keys = array_shift($rows);
             foreach( $rows as $row ) {
@@ -64,12 +63,11 @@ class Service extends \JSKOS\RDF\RDFMappingService {
                             $rdf->add($predicate,$o);
                         }
                     }   
-                    # FIXME: bug in EasyRDF?!
-                    # $rdf->getGraph()->deleteResource($rdf->getUri(), $predicate, $bnode);
                 }
             }
         }
-
+        #echo $rdf->getGraph()->dump('turtle');
+        
         // neither concept schemes nor registry
         $uris = RDFMapping::getURIs($rdf, 'rdf:type');
         if (!in_array("http://schema.org/Dataset", $uris)) {
@@ -84,38 +82,48 @@ class Service extends \JSKOS\RDF\RDFMappingService {
 
         $this->applyRDFMapping($rdf, $jskos); 
 
-
         # registry properties (TODO: fix wrong RDF at BARTOC instead)
+        # http://bartoc.org/en/Full-Repository/Full-terminology-repository-provides-terminology-content
+        # 
+/* 
         $uris = RDFMapping::getURIs($rdf, 'rdfs:label');
         if (in_array("http://bartoc.org/en/taxonomy/term/51230", $uris)) {
-            $jskos->type[] = 'http://bartoc.org/en/taxonomy/term/51230';
+            // yes:terminology content
+            $jskos->type[] = 'http://bartoc.org/en/taxonomy/term/51230'; 
         }
+*/
+
         $api = $rdf->allLiterals("nkos:serviceOffered");
         if (!empty($api)) {
-            $jskos->API = [ [ "url" => (string)$api[0] ] ];
+            # TODO: support custom JSKOS fields so we can add this
+            $jskos->subjectOf = [ [ 
+                "url" => (string)$api[0],
+                "prefLabel" => [ "en" => "API" ] 
+            ] ];
         }
 
-
-
-        # Remove Wikidata link from URL field
-        $urls = RDFMapping::getURIs($rdf, 'schema:url');
-        $urls = preg_grep("/^http:\/\/www\.wikidata\.org\/entity/", $urls, PREG_GREP_INVERT);
-        if (!empty($urls)) $jskos->url = $urls[0];
-
-        # map licenses
+        # map license (TODO: move to RDFMapper)
         foreach ( RDFMapping::getURIs($rdf, 'schema:license') as $license ) {
             if (isset($this->licenses[$license])) {
-                $jskos->license[] = ['uri'=>$this->licenses[$license]['uri']];
+                $jskos->license = [
+                    $this->licenses[$license]
+                ];
             }
         }
 
-        # map bartoc topic URIs to Eurovoc and DDC URIs
+        # map BARTOC topic URIs to Eurovoc and DDC URIs
         if (!empty($jskos->subject)) {
             foreach ( $jskos->subject as $i => $subject ) {
-                $uri = $subject->uri;
-                if (isset($this->topics[$uri])) {                
-                    $concept = new Concept([ 'uri' => $this->topics[$uri]['uri'] ]);
-                    $label =$this->topics[$uri]['label'];
+                $id = $subject->uri;
+                $uri = null;
+                $label = null;
+                if (preg_match('!^http://bartoc.org/en/DDC/23/(\d{3})!', $id, $match)) {
+                    $uri = "http://dewey.info/class/{$match[1]}/e23/";                    
+                } elseif (preg_match('!^http://bartoc.org/en/EuroVoc/(\d{3})!', $id, $match)) {
+                    $uri = "http://eurovoc.europa.eu/".$match[1];
+                }
+                if ($uri) {
+                    $concept = new Concept([ 'uri' => $uri, 'identifier' => [$id] ]);
                     if ($label) $concept->prefLabel = ['en' => $label];
                     $jskos->subject[$i] = $concept;
                 }

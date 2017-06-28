@@ -1,0 +1,48 @@
+{
+    "@context": "https://gbv.github.io/jskos/context.json",
+    "creator": [
+        {
+            "uri": "https://viaf.org/viaf/148789551"
+        }
+    ],
+    "identifier": [
+        "http://www.wikidata.org/entity/Q1224715"
+    ],
+    "license": [
+        {
+            "uri": "http://www.opendatacommons.org/licenses/by/1.0/"
+        }
+    ],
+    "notation": [
+        "DBPL"
+    ],
+    "prefLabel": {
+        "en": "Digital Bibliography & Library Project"
+    },
+    "scopeNote": {
+        "en": [
+            "DBLP is the most comprehensive computer science bibliography including information about authors, conferences, series, and journals"
+        ]
+    },
+    "startDate": "1993",
+    "subject": [
+        {
+            "identifier": [
+                "http://bartoc.org/en/EuroVoc/3236-information-technology-and-data-processing"
+            ],
+            "uri": "http://eurovoc.europa.eu/323"
+        },
+        {
+            "identifier": [
+                "http://bartoc.org/en/DDC/23/000-Computer-science-information-and-general-works"
+            ],
+            "uri": "http://dewey.info/class/000/e23/"
+        }
+    ],
+    "type": [
+        "http://www.w3.org/2004/02/skos/core#ConceptScheme",
+        "http://w3id.org/nkos/nkostype#name_authority_list"
+    ],
+    "uri": "http://bartoc.org/en/node/18600",
+    "url": "http://dblp.org/"
+}

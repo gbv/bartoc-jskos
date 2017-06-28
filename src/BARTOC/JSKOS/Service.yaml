@@ -39,6 +39,13 @@ subject:
     properties:
         - dct:subject
 
+# TODO: BARTOC liefert als String aus statt als URI!
+subjectOf:
+    type: URI
+    jskos: Concept
+    properties:    
+        - nkos:serviceOffered
+
 creator:
     type: URI
     jskos: Concept
@@ -57,16 +64,6 @@ scopeNote:
     properties:
         - skos:scopeNote
 
-# only relevant for registries
-
-prefLabel:
-    type: literal
-    unique: true
-    properties:
-        - dc:title
-
-# JSKOS Concept fields
-
 startDate:
     type: plain
     unique: true
@@ -81,4 +78,22 @@ endDate:
     pattern: /^\d\d\d\d$/
     properties:
         - schema:endDate
+
+# JSKOS ConceptScheme fields
+
+# TODO
+#license:
+#    type: URI
+#    jskos: Concept
+#    properties:
+#       - schema:license
+
+# only relevant for registries
+
+prefLabel:
+    type: literal
+    unique: true
+    properties:
+        - dc:title
+
 
