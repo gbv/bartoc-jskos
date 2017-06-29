@@ -38,6 +38,5 @@
       "vendor/bin/phpunit tests --debug --coverage-clover clover.xml"
     ]
   },
-  "type": "library",
-  "version": "0.1.1"
+  "type": "library"
 }

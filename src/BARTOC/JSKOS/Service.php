@@ -66,7 +66,8 @@ class Service extends \JSKOS\RDF\RDFMappingService {
                 }
             }
         }
-        #echo $rdf->getGraph()->dump('turtle');
+
+        # echo $rdf->getGraph()->dump('turtle');
         
         // neither concept schemes nor registry
         $uris = RDFMapping::getURIs($rdf, 'rdf:type');
@@ -76,22 +77,21 @@ class Service extends \JSKOS\RDF\RDFMappingService {
 
         if ( empty(RDFMapping::getURIs($rdf, 'dct:subject')) ) {
             $jskos = new Registry(['uri' => $uri ]);
+            
+            # registry properties (TODO: fix wrong RDF at BARTOC instead)
+            $uris = RDFMapping::getURIs($rdf, 'rdfs:label');
+            if (in_array("http://bartoc.org/de/Full-Repository/Full-terminology-repository-provides-terminology-content",$uris)) {
+                var_dump($uris);
+                $jskos->type = ['http://purl.org/dc/dcmitype/Collection'];
+            } else {
+                $jskos->type = ['http://purl.org/cld/cdtype/CatalogueOrIndex'];
+            }
         } else {
             $jskos = new ConceptScheme(['uri' => $uri]);
         }
 
         $this->applyRDFMapping($rdf, $jskos); 
 
-        # registry properties (TODO: fix wrong RDF at BARTOC instead)
-        # http://bartoc.org/en/Full-Repository/Full-terminology-repository-provides-terminology-content
-        # 
-/* 
-        $uris = RDFMapping::getURIs($rdf, 'rdfs:label');
-        if (in_array("http://bartoc.org/en/taxonomy/term/51230", $uris)) {
-            // yes:terminology content
-            $jskos->type[] = 'http://bartoc.org/en/taxonomy/term/51230'; 
-        }
-*/
 
         $api = $rdf->allLiterals("nkos:serviceOffered");
         if (!empty($api)) {
