@@ -75,17 +75,18 @@ class Service extends \JSKOS\RDF\RDFMappingService {
             return;
         }
 
-        if ( empty(RDFMapping::getURIs($rdf, 'dct:subject')) ) {
+        if ( empty(RDFMapping::getURIs($rdf, 'dc:language')) ) {
             $jskos = new Registry(['uri' => $uri ]);
+            if (!$jskos->type) $jskos->type = [];
             
             # registry properties (TODO: fix wrong RDF at BARTOC instead)
             $uris = RDFMapping::getURIs($rdf, 'rdfs:label');
-            if (in_array("http://bartoc.org/de/Full-Repository/Full-terminology-repository-provides-terminology-content",$uris)) {
-                # var_dump($uris);
-                $jskos->type = ['http://purl.org/dc/dcmitype/Collection'];
+            if (in_array("http://bartoc.org/en/Full-Repository/Full-terminology-repository-provides-terminology-content",$uris)) {
+                $type = 'http://purl.org/dc/dcmitype/Collection';
             } else {
-                $jskos->type = ['http://purl.org/cld/cdtype/CatalogueOrIndex'];
+                $type = 'http://purl.org/cld/cdtype/CatalogueOrIndex';
             }
+            $jskos->type[] = $type;
         } else {
             $jskos = new ConceptScheme(['uri' => $uri]);
         }
@@ -187,7 +188,8 @@ class Service extends \JSKOS\RDF\RDFMappingService {
         # try to detect language
         if (isset($prefLabel['und'])) {
             $label = $prefLabel['und'];
-            $candidates = $jskos->languages->map(function($m){return $m;});
+            $candidates = $jskos->languages 
+                        ? $jskos->languages->map(function($m){return $m;}) : [];
             $guess = $this->detectLanguage( $label, $candidates );
             if ($guess) {
                 $prefLabel[$guess] = $label;
@@ -204,7 +206,8 @@ class Service extends \JSKOS\RDF\RDFMappingService {
         if (isset($altLabel['und'])) {
             $und = [];
             foreach ( $altLabel['und'] as $label ) {
-                $candidates = $jskos->languages->map(function($m){return $m;});
+                $candidates = $jskos->languages 
+                            ? $jskos->languages->map(function($m){return $m;}) : [];
                 $guess = $this->detectLanguage( $label, $candidates );
                 if ($guess) {
                     $altLabel[$guess][] = $label;
