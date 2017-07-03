@@ -21,6 +21,12 @@ type:
 
 # JSKOS Item fields
 
+prefLabel:
+    type: literal
+    unique: true
+    properties:
+        - skos:prefLabel
+
 url:
     type: URI
     unique: true
@@ -39,7 +45,6 @@ subject:
     properties:
         - dct:subject
 
-# TODO: BARTOC liefert als String aus statt als URI!
 subjectOf:
     type: URI
     jskos: Concept
@@ -63,6 +68,7 @@ scopeNote:
     _defaultLanguage: en
     properties:
         - skos:scopeNote
+        - dc:description
 
 startDate:
     type: plain
@@ -81,19 +87,10 @@ endDate:
 
 # JSKOS ConceptScheme fields
 
-# TODO
-#license:
-#    type: URI
-#    jskos: Concept
-#    properties:
-#       - schema:license
-
-# only relevant for registries
-
-prefLabel:
-    type: literal
-    unique: true
+license:
+    type: URI
+    jskos: Concept
     properties:
-        - dc:title
+       - schema:license
 
 

@@ -8,6 +8,9 @@
     "identifier": [
         "http://www.wikidata.org/entity/Q1224715"
     ],
+    "languages": [
+        "en"
+    ],
     "license": [
         {
             "uri": "http://www.opendatacommons.org/licenses/by/1.0/"
@@ -30,7 +33,7 @@
             "identifier": [
                 "http://bartoc.org/en/EuroVoc/3236-information-technology-and-data-processing"
             ],
-            "uri": "http://eurovoc.europa.eu/323"
+            "uri": "http://eurovoc.europa.eu/3236"
         },
         {
             "identifier": [

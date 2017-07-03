@@ -81,7 +81,7 @@ class Service extends \JSKOS\RDF\RDFMappingService {
             # registry properties (TODO: fix wrong RDF at BARTOC instead)
             $uris = RDFMapping::getURIs($rdf, 'rdfs:label');
             if (in_array("http://bartoc.org/de/Full-Repository/Full-terminology-repository-provides-terminology-content",$uris)) {
-                var_dump($uris);
+                # var_dump($uris);
                 $jskos->type = ['http://purl.org/dc/dcmitype/Collection'];
             } else {
                 $jskos->type = ['http://purl.org/cld/cdtype/CatalogueOrIndex'];
@@ -93,22 +93,12 @@ class Service extends \JSKOS\RDF\RDFMappingService {
         $this->applyRDFMapping($rdf, $jskos); 
 
 
-        $api = $rdf->allLiterals("nkos:serviceOffered");
-        if (!empty($api)) {
-            # TODO: support custom JSKOS fields so we can add this
-            $jskos->subjectOf = [ [ 
-                "url" => (string)$api[0],
-                "prefLabel" => [ "en" => "API" ] 
-            ] ];
-        }
-
-        # map license (TODO: move to RDFMapper)
-        foreach ( RDFMapping::getURIs($rdf, 'schema:license') as $license ) {
-            if (isset($this->licenses[$license])) {
-                $jskos->license = [
-                    $this->licenses[$license]
-                ];
-            }
+        # map BARTOC license to License URI
+        if ($jskos->license) {
+            $jskos->license = array_filter(array_map(
+                function ($uri) { return $this->licenses[$uri]; },
+                $jskos->license->map(function($m){return $m->uri;})
+            ));
         }
 
         # map BARTOC topic URIs to Eurovoc and DDC URIs
@@ -117,9 +107,9 @@ class Service extends \JSKOS\RDF\RDFMappingService {
                 $id = $subject->uri;
                 $uri = null;
                 $label = null;
-                if (preg_match('!^http://bartoc.org/en/DDC/23/(\d{3})!', $id, $match)) {
+                if (preg_match('!^http://bartoc.org/en/DDC/23/([0-9]+)!', $id, $match)) {
                     $uri = "http://dewey.info/class/{$match[1]}/e23/";                    
-                } elseif (preg_match('!^http://bartoc.org/en/EuroVoc/(\d{3})!', $id, $match)) {
+                } elseif (preg_match('!^http://bartoc.org/en/EuroVoc/([0-9]+)!', $id, $match)) {
                     $uri = "http://eurovoc.europa.eu/".$match[1];
                 }
                 if ($uri) {
@@ -139,24 +129,32 @@ class Service extends \JSKOS\RDF\RDFMappingService {
             }
         }
         
-        # ISO 639-2 (primary) or ISO 639-2/T (Terminology, three letter)
-        foreach ( RDFMapping::getURIs($rdf, 'dc:language') as $language ) {
-            if (isset($this->languages[$language])) {
-                $jskos->languages[] = $this->languages[$language]['iana'];
-            } else {
-                error_log("Unknown language: $language");
+        # map languages to ISO 639-2 (primary) or ISO 639-2/T (Terminology, three letter)
+        $languages = RDFMapping::getURIs($rdf, 'dc:language');
+        if (count($languages)) {
+            $jskos->languages = [];
+            foreach ($languages as $lang) {
+                if (isset($this->languages[$lang])) {
+                    $jskos->languages[] = $this->languages[$lang]['iana'];
+                } else {
+                    error_log("Unknown language: $lang");
+                }
             }
         }
 
         # try to find out names and languages
 
         $names = [];
+        $prefLabel = [];
+        $altLabel = [];
         foreach ($rdf->allLiterals('schema:name') as $name) {
             $value = $name->getValue();
             if (preg_match('/^[A-Z]{2,5}$/', $value)) {
                 $jskos->notation = [ $value ];
+            } elseif( $name->getLang() ) {
+                $prefLabel[ $name->getLang() ] = $value;
             } elseif( $name->getDatatypeUri() == "http://id.loc.gov/vocabulary/iso639-2/eng" ) {
-                $jskos->prefLabel['en'] = $value;
+                $prefLabel['en'] = $value;
             } else {
                 $names[] = $value;
             }
@@ -171,54 +169,58 @@ class Service extends \JSKOS\RDF\RDFMappingService {
            $prefLabels[] = $name->getValue();
         }
         if (count($prefLabels) == 1) {
-            $jskos->prefLabel[$defaultLanguage] = $prefLabel[0];
+            $prefLabel[$defaultLanguage] = $prefLabels[0];
         } else {
             $names = array_unique(array_merge($names,$prefLabels));
         }
 
         if (count($jskos->languages) == 1 && count($names) == 1) {
-            $jskos->prefLabel[ $jskos->languages[0] ] = $names[0];
+            $prefLabel[ $jskos->languages[0] ] = $names[0];
         } else {
-            # error_log("Languages: ". implode(", ",$jskos->languages));
             if (count($names) == 1) {
-                $jskos->prefLabel['und'] = $names[0];
+                $prefLabel['und'] = $names[0];
             } elseif (count($names)) {
-                $jskos->altLabel['und'] = $names;
+                $altLabel['und'] = $names;
             }
         }
 
         # try to detect language
-        if (isset($jskos->prefLabel['und'])) {
-            $label = $jskos->prefLabel['und'];
-            $guess = $this->detectLanguage( $label, $jskos->languages );
+        if (isset($prefLabel['und'])) {
+            $label = $prefLabel['und'];
+            $candidates = $jskos->languages->map(function($m){return $m;});
+            $guess = $this->detectLanguage( $label, $candidates );
             if ($guess) {
-                $jskos->prefLabel[$guess] = $label;
-                unset($jskos->prefLabel['und']);
+                $prefLabel[$guess] = $label;
+                unset($prefLabel['und']);
             } else {
                 # remove if same label in known language exists
-                unset($jskos->prefLabel['und']);
-                if (!in_array($label, $jskos->prefLabel)) {
-                    $jskos->prefLabel['und'] = $label;
+                unset($prefLabel['und']);
+                if (!in_array($label, $prefLabel)) {
+                    $prefLabel['und'] = $label;
                 }
             }
         }
 
-        if (isset($jskos->altLabel['und'])) {
+        if (isset($altLabel['und'])) {
             $und = [];
-            foreach ( $jskos->altLabel['und'] as $text ) {
-                $guess = $this->detectLanguage( $text, $jskos->languages );
+            foreach ( $altLabel['und'] as $label ) {
+                $candidates = $jskos->languages->map(function($m){return $m;});
+                $guess = $this->detectLanguage( $label, $candidates );
                 if ($guess) {
-                    $jskos->altLabel[$guess][] = $text;
+                    $altLabel[$guess][] = $label;
                 } else {
-                    $und[] = $text;
+                    $und[] = $label;
                 }
             }
             if (count($und)) {
-                $jskos->altLabel['und'] = $und;
+                $altLabel['und'] = $und;
             } else {
-                unset($jskos->altLabel['und']);
+                unset($altLabel['und']);
             }
         }
+
+        if (count($prefLabel)) $jskos->prefLabel = $prefLabel;
+        if (count($altLabel)) $jskos->altLabel = $altLabel;
 
         return $jskos;
     }

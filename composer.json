@@ -18,7 +18,7 @@
   "license": "LGPL",
   "name": "gbv/bartoc-jskos",
   "require": {
-    "gbv/jskos": ">=0.1.5",
+    "gbv/jskos": ">=0.1.6",
     "gbv/jskos-rdf": ">=0.1.2",
     "pear/text_languagedetect": "1.0.x",
     "php": ">=7.0"
