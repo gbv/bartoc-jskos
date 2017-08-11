@@ -114,7 +114,11 @@ class Service extends \JSKOS\RDF\RDFMappingService {
                     $uri = "http://eurovoc.europa.eu/".$match[1];
                 }
                 if ($uri) {
-                    $concept = new Concept([ 'uri' => $uri, 'identifier' => [$id] ]);
+                    $concept = new Concept([ 
+                        'uri' => $uri, 
+                        'identifier' => [$id],
+                        'notation' => [$match[1]], 
+                    ]);
                     if ($label) $concept->prefLabel = ['en' => $label];
                     $jskos->subject[$i] = $concept;
                 }

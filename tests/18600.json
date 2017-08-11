@@ -33,12 +33,14 @@
             "identifier": [
                 "http://bartoc.org/en/EuroVoc/3236-information-technology-and-data-processing"
             ],
+            "notation": [ "3236" ],
             "uri": "http://eurovoc.europa.eu/3236"
         },
         {
             "identifier": [
                 "http://bartoc.org/en/DDC/23/000-Computer-science-information-and-general-works"
             ],
+            "notation": [ "000" ],
             "uri": "http://dewey.info/class/000/e23/"
         }
     ],
