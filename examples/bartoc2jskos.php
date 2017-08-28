@@ -18,7 +18,7 @@ if (preg_match('/^\d+$/', $uri)) {
 require __DIR__ . '/../vendor/autoload.php';
 
 $service = new \BARTOC\JSKOS\Service();
-$jskos = $service->queryURI($uri);
+$jskos = $service->query(['uri'=>$uri]);
 if ($jskos) {
     print $jskos->json() . "\n";
 }

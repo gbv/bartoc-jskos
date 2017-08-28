@@ -3,11 +3,9 @@
 namespace BARTOC\JSKOS;
 
 use JSKOS\ConceptScheme;
-use Helmich\JsonAssert\JsonAssertions;
 
 class ServiceTest extends \PHPUnit\Framework\TestCase
 {
-    use JsonAssertions;
 
     public function testLanguageDetector()
     {

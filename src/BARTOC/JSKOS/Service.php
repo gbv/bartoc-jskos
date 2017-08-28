@@ -9,14 +9,15 @@ namespace BARTOC\JSKOS;
 use JSKOS\Concept;
 use JSKOS\ConceptScheme;
 use JSKOS\Registry;
-use JSKOS\Page;
-use JSKOS\RDF\RDFMapping;
+use JSKOS\Result;
+use JSKOS\RDF\Mapper;
+use JSKOS\URISpaceService;
 use BARTOC\LanguageDetector;
+use JSKOS\ConfiguredService;
+use Symfony\Component\Yaml\Yaml;
 
-
-class Service extends \JSKOS\RDF\RDFMappingService {
-    public static $CONFIG_DIR = __DIR__;
-
+class Service extends ConfiguredService
+{
     use LanguageDetector;
 
     protected $supportedParameters = ['notation','search'];
@@ -24,9 +25,15 @@ class Service extends \JSKOS\RDF\RDFMappingService {
     private $languages = [];
     private $licenses  = [];
     private $kostypes  = [];
+    private $urispace;
  
-    public function __construct() {
-        parent::__construct();
+    public function __construct(array $config=[]) {
+        $config = Yaml::parse(file_get_contents(__DIR__."/Service.yaml"));
+        $this->configure($config);
+
+        $this->mapper = new Mapper($config);
+        $this->urispace = new URISpaceService($config['_uriSpace']);
+
         foreach (['languages','licenses','kostypes'] as $name) {
             $rows = array_map('str_getcsv', file(__DIR__."/$name.csv"));
             $keys = array_shift($rows);
@@ -38,19 +45,20 @@ class Service extends \JSKOS\RDF\RDFMappingService {
         }
     }
 
-    public function query($query) {
-        $jskos = $this->queryUriSpace($query);
-        if ($jskos) {
-            return $this->queryUri($jskos->uri);
+    public function query(array $query=[], string $path = ''): Result
+    {
+        $jskos = $this->urispace->query($query, $path);
+        if (count($jskos)) {
+            return new Result( [$this->queryUri($jskos[0]->uri)] );
         } elseif (isset($query['search'])) {
-            return new Page( $this->search($query['search']) );
+            return new Result( $this->search($query['search']) );
         } else {
             return;
         }
     }
 
-    public function queryUri($uri) {
-        $rdf = RDFMapping::loadRDF($uri);
+    public function queryUri($uri): ConceptScheme {
+        $rdf = Mapper::loadRDF($uri); # TODO
         if (!$rdf || empty($rdf->getGraph()->propertyUris($uri))) return;
 
         // FIXME: There is a bug in Drupal RDFa output. This is a dirty hack to repair.
@@ -70,17 +78,17 @@ class Service extends \JSKOS\RDF\RDFMappingService {
         # echo $rdf->getGraph()->dump('turtle');
         
         // neither concept schemes nor registry
-        $uris = RDFMapping::getURIs($rdf, 'rdf:type');
+        $uris = Mapper::getURIs($rdf, 'rdf:type');
         if (!in_array("http://schema.org/Dataset", $uris)) {
             return;
         }
 
-        if ( empty(RDFMapping::getURIs($rdf, 'dc:language')) ) {
+        if ( empty(Mapper::getURIs($rdf, 'dc:language')) ) {
             $jskos = new Registry(['uri' => $uri ]);
             if (!$jskos->type) $jskos->type = [];
             
             # registry properties (TODO: fix wrong RDF at BARTOC instead)
-            $uris = RDFMapping::getURIs($rdf, 'rdfs:label');
+            $uris = Mapper::getURIs($rdf, 'rdfs:label');
             if (in_array("http://bartoc.org/en/Full-Repository/Full-terminology-repository-provides-terminology-content",$uris)) {
                 $type = 'http://purl.org/dc/dcmitype/Collection';
             } else {
@@ -91,13 +99,13 @@ class Service extends \JSKOS\RDF\RDFMappingService {
             $jskos = new ConceptScheme(['uri' => $uri]);
         }
 
-        $this->applyRDFMapping($rdf, $jskos); 
+        $this->mapper->applyAtResource($rdf, $jskos); 
 
 
         # map BARTOC license to License URI
         if ($jskos->license) {
             $jskos->license = array_filter(array_map(
-                function ($uri) { return $this->licenses[$uri]; },
+                function ($uri) { return $this->licenses[$uri] ?? null; },
                 $jskos->license->map(function($m){return $m->uri;})
             ));
         }
@@ -135,7 +143,7 @@ class Service extends \JSKOS\RDF\RDFMappingService {
         }
         
         # map languages to ISO 639-2 (primary) or ISO 639-2/T (Terminology, three letter)
-        $languages = RDFMapping::getURIs($rdf, 'dc:language');
+        $languages = Mapper::getURIs($rdf, 'dc:language');
         if (count($languages)) {
             $jskos->languages = [];
             foreach ($languages as $lang) {
