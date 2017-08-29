@@ -8,6 +8,7 @@ namespace BARTOC\JSKOS;
 
 use JSKOS\Concept;
 use JSKOS\ConceptScheme;
+use JSKOS\Resource;
 use JSKOS\Registry;
 use JSKOS\Result;
 use JSKOS\RDF\Mapper;
@@ -53,11 +54,11 @@ class Service extends ConfiguredService
         } elseif (isset($query['search'])) {
             return new Result( $this->search($query['search']) );
         } else {
-            return;
+            return new Result();
         }
     }
 
-    public function queryUri($uri): ConceptScheme {
+    public function queryUri($uri): Resource {
         $rdf = Mapper::loadRDF($uri); # TODO
         if (!$rdf || empty($rdf->getGraph()->propertyUris($uri))) return;
 
