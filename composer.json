@@ -19,8 +19,8 @@
   "name": "gbv/bartoc-jskos",
   "require": {
     "php": ">=7.0",
-    "gbv/jskos": "^0.3.4",
-    "gbv/jskos-rdf": "^0.3",
+    "gbv/jskos": ">=0.3.4",
+    "gbv/jskos-rdf": "0.3.x",
     "pear/text_languagedetect": "1.0.x",
     "symfony/yaml": "^3.3"
   },
